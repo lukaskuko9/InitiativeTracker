@@ -1,15 +1,11 @@
 package com.example.initiativetracker;
 
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +14,8 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.InputType;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,19 +23,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
-
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,17 +42,18 @@ public class MainActivity extends AppCompatActivity {
 
     List<RecyclerEntity> entityList;
 
+    final int OPEN_FILE_CODE = 123;
+    final int SAVE_FILE_CODE = 1;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 123 && resultCode == RESULT_OK)  //open file
+        if(requestCode == OPEN_FILE_CODE && resultCode == RESULT_OK)  //open file
         {
             Uri selectedfile = data.getData(); //The uri with the location of the file
             //Toast.makeText(getBaseContext(),selectedfile.getPath(),Toast.LENGTH_LONG).show();
 
             try {
-               // ContentResolver cr = getApplicationContext().getContentResolver();
-                //InputStream is = cr.openInputStream(selectedfile);
                 InputStream is;
                 VirtualFileToInputStream vs = new VirtualFileToInputStream(this);
 
@@ -93,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-        else if(requestCode == 1 && resultCode == Activity.RESULT_OK) //save file
+        else if(requestCode == SAVE_FILE_CODE && resultCode == Activity.RESULT_OK) //save file
         {
             OutputStream os = null;
             try {
@@ -136,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                         .setType("*/*");
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                // intent.setType("*/.dnd"); //not needed, but maybe usefull
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, SAVE_FILE_CODE);
                 break;
 
             case R.id.menu_openfile:
@@ -145,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                         .setType("*/*")
                         .setAction(Intent.ACTION_GET_CONTENT);
 
-                startActivityForResult(Intent.createChooser(intent, "Select a file"), 123);
+                startActivityForResult(Intent.createChooser(intent, "Select a file"), OPEN_FILE_CODE);
                 break;
             case R.id.menu_clear:
                 new AlertDialog.Builder(this)
@@ -194,10 +185,28 @@ public class MainActivity extends AppCompatActivity {
                 View mView = MainActivity.Instance.getLayoutInflater().inflate(R.layout.dialogcreatureedit, null);
                 //View mView = getLayoutInflater().inflate(R.layout.dialog_login, null);
                 final EditText name = (EditText) mView.findViewById(R.id.nameEditText);
-                final EditText roll = (EditText) mView.findViewById(R.id.rollEditText);
+                final EditText hp = (EditText) mView.findViewById(R.id.hpEditText);
+                final EditText maxhp = (EditText) mView.findViewById(R.id.maxhpEditText);
+                maxhp.setEnabled(false);
 
-                TextView textView = mView.findViewById(R.id.textView);
-                TextView rowCountTextView = mView.findViewById(R.id.rowCountTextView);
+                hp.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        maxhp.setText(charSequence);
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+
+                    }
+                });
+                TextView textView = mView.findViewById(R.id.nametextView);
+                TextView rowCountTextView = mView.findViewById(R.id.hpTextView);
 
 
                 Button confirm = (Button) mView.findViewById(R.id.btnConfirm);
@@ -212,11 +221,11 @@ public class MainActivity extends AppCompatActivity {
 
                         if(!name.getText().toString().equals(""))
                         {
-                            if(roll.getText().toString().equals(""))
+                            if(hp.getText().toString().equals(""))
                             {
-                                roll.setText("0");
+                                hp.setText("0");
                             }
-                            entityList.add(new RecyclerEntity(name.getText().toString(),roll.getText().toString()));
+                            entityList.add(new RecyclerEntity(name.getText().toString(),hp.getText().toString(),maxhp.getText().toString()));
                             recyclerAdapter.notifyDataSetChanged();
                             dialog.dismiss();
                         }

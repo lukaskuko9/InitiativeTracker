@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -56,8 +57,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        holder.rowCountTextView.setText(recyclerEntities.get(position).roll);
-        holder.textView.setText(recyclerEntities.get(position).name);
+        holder.nametextView.setText(recyclerEntities.get(position).name);
+        holder.hpTextView.setText(recyclerEntities.get(position).hp);
+        holder.maxhpTextView.setText(recyclerEntities.get(position).maxHp);
+        holder.hpbar.setProgress(recyclerEntities.get(position).hpPercentage);
         //holder.position = position;
         recyclerEntities.get(holder.getAdapterPosition()).viewHolder = holder;
     }
@@ -71,7 +74,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         int position;
         ImageView imageView;
-        TextView textView, rowCountTextView;
+        TextView nametextView, hpTextView, maxhpTextView;
+        ProgressBar hpbar;
         View v;
 
         public AlertDialog getAlertDialog(View view)
@@ -81,11 +85,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             View mView = MainActivity.Instance.getLayoutInflater().inflate(R.layout.dialogcreatureedit, null);
             //View mView = getLayoutInflater().inflate(R.layout.dialog_login, null);
             final EditText name = (EditText) mView.findViewById(R.id.nameEditText);
-            final EditText roll = (EditText) mView.findViewById(R.id.rollEditText);
+            final EditText hp = (EditText) mView.findViewById(R.id.hpEditText);
+            final EditText maxhp = (EditText) mView.findViewById(R.id.maxhpEditText);
 
-            name.setText(textView.getText().toString());
-            roll.setText(rowCountTextView.getText().toString());
-
+            name.setText(nametextView.getText().toString());
+            hp.setText(hpTextView.getText().toString());
+            maxhp.setText(maxhpTextView.getText().toString());
             Button confirm = (Button) mView.findViewById(R.id.btnConfirm);
             Button delete = (Button) mView.findViewById(R.id.btnDelete);
 
@@ -96,11 +101,16 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 @Override
                 public void onClick(View view) {
                     String n = name.getText().toString();
-                    String r = roll.getText().toString();
-                    textView.setText(n);
-                    rowCountTextView.setText(r);
+                    String hpstr = hp.getText().toString();
+                    String maxhpstr = maxhp.getText().toString();
+                    nametextView.setText(n);
+                    hpTextView.setText(hpstr);
+                    maxhpTextView.setText(maxhpstr);
+                    int val = (int)((Integer.parseInt(hpstr)*1.0)/(Integer.parseInt(maxhpstr))*100.0);
+                    hpbar.setProgress(val);
                     recyclerEntities.get(position).name = n;
-                    recyclerEntities.get(position).roll = r;
+                    recyclerEntities.get(position).hp = hpstr;
+                    recyclerEntities.get(position).maxHp = maxhpstr;
                     dialog.dismiss();
                 }
             });
@@ -121,8 +131,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             super(itemView);
 
            // imageView = itemView.findViewById(R.id.imageView);
-            textView = itemView.findViewById(R.id.textView);
-            rowCountTextView = itemView.findViewById(R.id.rowCountTextView);
+            nametextView = itemView.findViewById(R.id.nametextView);
+            hpTextView = itemView.findViewById(R.id.hpTextView);
+            maxhpTextView = itemView.findViewById(R.id.maxhptextView);
+            hpbar = (ProgressBar) itemView.findViewById(R.id.vertical_progressbar);
             v = itemView;
             itemView.setOnClickListener(this);
         }
