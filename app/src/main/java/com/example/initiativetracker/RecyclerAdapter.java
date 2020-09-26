@@ -1,11 +1,14 @@
 package com.example.initiativetracker;
 
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,6 +24,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     private static final String TAG = "RecyclerAdapter";
     List<RecyclerEntity> recyclerEntities;
     RecyclerAdapter inst;
+    boolean canmove = false;
+
     public RecyclerAdapter(List<RecyclerEntity> recyclerEntities) {
         this.recyclerEntities = recyclerEntities;
         inst = this;
@@ -61,6 +66,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         holder.hpTextView.setText(recyclerEntities.get(position).hp);
         holder.maxhpTextView.setText(recyclerEntities.get(position).maxHp);
         holder.hpbar.setProgress(recyclerEntities.get(position).hpPercentage);
+
+        holder.hppicker.setMinValue(0);
+        holder.hppicker.setValue(Integer.valueOf(holder.hpTextView.getText().toString()));
+        holder.hppicker.setMaxValue(Integer.valueOf(holder.maxhpTextView.getText().toString()));
         //holder.position = position;
         recyclerEntities.get(holder.getAdapterPosition()).viewHolder = holder;
     }
@@ -75,8 +84,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         int position;
         ImageView imageView;
         TextView nametextView, hpTextView, maxhpTextView;
+        NumberPicker hppicker;
         ProgressBar hpbar;
         View v;
+        ImageView iv;
 
         public AlertDialog getAlertDialog(View view)
         {
@@ -106,6 +117,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                     nametextView.setText(n);
                     hpTextView.setText(hpstr);
                     maxhpTextView.setText(maxhpstr);
+                    hppicker.setMaxValue(Integer.valueOf(maxhpstr));
+                    hppicker.setValue(Integer.valueOf(hpstr));
                     int val = (int)((Integer.parseInt(hpstr)*1.0)/(Integer.parseInt(maxhpstr))*100.0);
                     hpbar.setProgress(val);
                     recyclerEntities.get(position).name = n;
@@ -135,19 +148,58 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             hpTextView = itemView.findViewById(R.id.hpTextView);
             maxhpTextView = itemView.findViewById(R.id.maxhptextView);
             hpbar = (ProgressBar) itemView.findViewById(R.id.vertical_progressbar);
+            hppicker = itemView.findViewById(R.id.numberPicker);
+
+            hppicker.setMinValue(0);
+            hppicker.setValue(Integer.valueOf(hpTextView.getText().toString()));
+            hppicker.setMaxValue(Integer.valueOf(maxhpTextView.getText().toString()));
+
+            hppicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                @Override
+                public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                    int value = numberPicker.getValue();
+                    int maxhp = Integer.valueOf(maxhpTextView.getText().toString());
+                    int val = (int)((value*1.0)/(maxhp)*100.0);
+                    hpbar.setProgress(val);
+                    hpTextView.setText(String.valueOf(value));
+                }
+            });
             v = itemView;
             itemView.setOnClickListener(this);
+            iv = itemView.findViewById(R.id.imageView);
+            iv.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    canmove = true;
+                    return false;
+                }
+            });
+
         }
+
+        boolean open = false;
 
         @Override
         public void onClick(View view) {
 
-            position = getAdapterPosition();
-            View mView = MainActivity.Instance.getLayoutInflater().inflate(R.layout.dialogcreatureedit, null);
-            AlertDialog dialog = getAlertDialog(v);
-            dialog.show();
-
-
+            if(!open) {
+                position = getAdapterPosition();
+                View mView = MainActivity.Instance.getLayoutInflater().inflate(R.layout.dialogcreatureedit, null);
+                AlertDialog dialog = getAlertDialog(v);
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialogInterface) {
+                        open = true;
+                    }
+                });
+                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        open = false;
+                    }
+                });
+                dialog.show();
+            }
         }
 
     }

@@ -16,11 +16,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.BufferedReader;
@@ -187,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
                 final EditText name = (EditText) mView.findViewById(R.id.nameEditText);
                 final EditText hp = (EditText) mView.findViewById(R.id.hpEditText);
                 final EditText maxhp = (EditText) mView.findViewById(R.id.maxhpEditText);
+
                 maxhp.setEnabled(false);
 
                 hp.addTextChangedListener(new TextWatcher() {
@@ -225,6 +229,7 @@ public class MainActivity extends AppCompatActivity {
                             {
                                 hp.setText("0");
                             }
+
                             entityList.add(new RecyclerEntity(name.getText().toString(),hp.getText().toString(),maxhp.getText().toString()));
                             recyclerAdapter.notifyDataSetChanged();
                             dialog.dismiss();
@@ -260,10 +265,21 @@ public class MainActivity extends AppCompatActivity {
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0) {
+    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, 0)
+    {
+
+        @Override
+        public boolean isLongPressDragEnabled() {
+            if(recyclerAdapter.canmove)
+            {
+                recyclerAdapter.canmove = false;
+                return  true;
+            }
+            return false;
+        }
+
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-
             int fromPosition = viewHolder.getAdapterPosition();
             int toPosition = target.getAdapterPosition();
             Collections.swap(entityList, fromPosition, toPosition);
