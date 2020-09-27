@@ -1,6 +1,8 @@
 package com.example.initiativetracker;
 
 import android.content.DialogInterface;
+import android.os.CountDownTimer;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -170,9 +172,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             iv.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
-                    canmove = true;
+                    int action = motionEvent.getAction();
+                    if(action == MotionEvent.ACTION_DOWN) {
+                        canmove = true;
+                        new CountDownTimer(1000, 1000) {
+
+                            public void onTick(long millisUntilFinished) {
+                            }
+
+                            public void onFinish() {
+                                canmove = false;
+                            }
+                        }.start();
+                    }
                     return false;
                 }
+
             });
 
         }
@@ -181,7 +196,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
         @Override
         public void onClick(View view) {
-
             if(!open) {
                 position = getAdapterPosition();
                 View mView = MainActivity.Instance.getLayoutInflater().inflate(R.layout.dialogcreatureedit, null);
