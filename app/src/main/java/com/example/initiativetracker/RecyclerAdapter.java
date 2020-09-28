@@ -67,6 +67,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         holder.nametextView.setText(recyclerEntities.get(position).name);
         holder.hpTextView.setText(recyclerEntities.get(position).hp);
         holder.maxhpTextView.setText(recyclerEntities.get(position).maxHp);
+        holder.acTextView.setText(recyclerEntities.get(position).ac);
+
         holder.hpbar.setProgress(recyclerEntities.get(position).hpPercentage);
 
         holder.hppicker.setMinValue(0);
@@ -85,7 +87,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         int position;
         ImageView imageView;
-        TextView nametextView, hpTextView, maxhpTextView;
+        TextView nametextView, hpTextView, maxhpTextView,acTextView;
         NumberPicker hppicker;
         ProgressBar hpbar;
         View v;
@@ -100,10 +102,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             final EditText name = (EditText) mView.findViewById(R.id.nameEditText);
             final EditText hp = (EditText) mView.findViewById(R.id.hpEditText);
             final EditText maxhp = (EditText) mView.findViewById(R.id.maxhpEditText);
+            final EditText ac = (EditText) mView.findViewById(R.id.acEditText);
 
             name.setText(nametextView.getText().toString());
             hp.setText(hpTextView.getText().toString());
             maxhp.setText(maxhpTextView.getText().toString());
+            ac.setText(acTextView.getText().toString());
+
             Button confirm = (Button) mView.findViewById(R.id.btnConfirm);
             Button delete = (Button) mView.findViewById(R.id.btnDelete);
 
@@ -116,16 +121,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                     String n = name.getText().toString();
                     String hpstr = hp.getText().toString();
                     String maxhpstr = maxhp.getText().toString();
+                    String acstr = ac.getText().toString();
                     nametextView.setText(n);
                     hpTextView.setText(hpstr);
                     maxhpTextView.setText(maxhpstr);
+                    acTextView.setText(acstr);
+
                     hppicker.setMaxValue(Integer.valueOf(maxhpstr));
                     hppicker.setValue(Integer.valueOf(hpstr));
                     int val = (int)((Integer.parseInt(hpstr)*1.0)/(Integer.parseInt(maxhpstr))*100.0);
                     hpbar.setProgress(val);
+
                     recyclerEntities.get(position).name = n;
                     recyclerEntities.get(position).hp = hpstr;
                     recyclerEntities.get(position).maxHp = maxhpstr;
+                    recyclerEntities.get(position).ac = acstr;
+
                     dialog.dismiss();
                 }
             });
@@ -149,6 +160,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             nametextView = itemView.findViewById(R.id.nametextView);
             hpTextView = itemView.findViewById(R.id.hpTextView);
             maxhpTextView = itemView.findViewById(R.id.maxhptextView);
+            acTextView = itemView.findViewById(R.id.acTextView);
+
             hpbar = (ProgressBar) itemView.findViewById(R.id.vertical_progressbar);
             hppicker = itemView.findViewById(R.id.numberPicker);
 

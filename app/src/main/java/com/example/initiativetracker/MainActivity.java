@@ -68,18 +68,22 @@ public class MainActivity extends AppCompatActivity {
                     is = getContentResolver().openInputStream(selectedfile);
                 }
 
+                int c = 0;
+
                 if (is!=null) {
                     recyclerAdapter.clear();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(is));
                     String str="";
 
                     while ((str = reader.readLine()) != null) {
-                        try {
-                            entityList.add(RecyclerEntity.GetInstance(str));
-                            recyclerAdapter.notifyDataSetChanged();
+                        RecyclerEntity inst = RecyclerEntity.GetInstance(str);
+                        if(inst != null) {
+                            entityList.add(inst);
                         }
-                        catch (Exception e){}
+                        else
+                            c++;
                     }
+                    recyclerAdapter.notifyDataSetChanged();
                 }
                 is.close();
             } catch (IOException e) {
@@ -190,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 final EditText name = (EditText) mView.findViewById(R.id.nameEditText);
                 final EditText hp = (EditText) mView.findViewById(R.id.hpEditText);
                 final EditText maxhp = (EditText) mView.findViewById(R.id.maxhpEditText);
+                final EditText ac = (EditText) mView.findViewById(R.id.acEditText);
 
                 maxhp.setEnabled(false);
 
@@ -230,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                                 hp.setText("0");
                             }
 
-                            entityList.add(new RecyclerEntity(name.getText().toString(),hp.getText().toString(),maxhp.getText().toString()));
+                            entityList.add(new RecyclerEntity(name.getText().toString(),hp.getText().toString(),maxhp.getText().toString(), ac.getText().toString()));
                             recyclerAdapter.notifyDataSetChanged();
                             dialog.dismiss();
                         }
